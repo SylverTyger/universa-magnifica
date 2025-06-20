@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universa Magnifica Oracle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      color: indigo;
+    }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      background-color: white;
+      color: indigo;
+      border: 2px solid indigo;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .card img {
+      width: 90%;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+      margin-top: 1rem;
+    }
+    .revelation {
+      white-space: pre-wrap;
+      max-width: 90%;
+      margin: 1.5rem auto;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Universa Magnifica Oracle</h1>
+  <button id="draw-button">Breathe & Draw</button>
+  <div class="card" id="card-container"></div>
+  <div class="revelation" id="revelation-text"></div>
+
+  <script>
+    const baseImageUrl = 'https://sylvertyger.github.io/universa-magnifica/Artwork';
+    const baseTextUrl = 'https://sylvertyger.github.io/universa-magnifica/Meanings';
+
+    const cardNames = [
+      'OM', 'AF', 'AK', 'AL', 'AZ', 'BA', 'BR', 'BU', 'EB', 'EH',
+      'FE', 'FU', 'GR', 'HA', 'HE', 'IB', 'IK', 'IS', 'IY', 'KI',
+      'KO', 'MA', 'ME', 'MI', 'MO', 'NE', 'NU', 'OH', 'ON', 'OR',
+      'OT', 'OY', 'RE', 'RN', 'TO', 'UA', 'UB', 'UK', 'UM', 'UN',
+      'UR', 'UT', 'ZI', 'ZO', 'ZU'
+    ];
+
+    let isHolding = false;
+    let holdStart = 0;
+
+    const button = document.getElementById('draw-button');
+    const cardContainer = document.getElementById('card-container');
+    const revelationText = document.getElementById('revelation-text');
+
+    button.addEventListener('mousedown', () => {
+      isHolding = true;
+      holdStart = Date.now();
+    });
+
+    button.addEventListener('mouseup', () => {
+      if (!isHolding) return;
+      isHolding = false;
+      drawCard();
+    });
+
+    button.addEventListener('touchstart', () => {
+      isHolding = true;
+      holdStart = Date.now();
+    });
+
+    button.addEventListener('touchend', () => {
+      if (!isHolding) return;
+      isHolding = false;
+      drawCard();
+    });
+
+    function drawCard() {
+      const entropy = window.crypto.getRandomValues(new Uint32Array(1))[0];
+      const totalSeed = entropy ^ holdStart;
+      const index = totalSeed % cardNames.length;
+      const name = cardNames[index];
+
+      const encodedImage = encodeURIComponent(`Card ${index} ${name}.png`);
+      const encodedText = encodeURIComponent(`Universa Magnifica Revelation ${index} - ${name}.txt`);
+
+      const imageUrl = `${baseImageUrl}/${encodedImage}`;
+      const textUrl = `${baseTextUrl}/${encodedText}`;
+
+      cardContainer.innerHTML = `<img src="${imageUrl}" alt="Card ${name}" />`;
+
+      fetch(textUrl)
+        .then(response => response.ok ? response.text() : Promise.reject('Not found'))
+        .then(text => {
+          revelationText.textContent = text;
+        })
+        .catch(() => {
+          revelationText.textContent = 'Revelation not found.';
+        });
+    }
+  </script>
+</body>
+</html>
